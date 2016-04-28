@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.amazonaws.regions.Regions;
@@ -77,9 +78,14 @@ public class Process implements RequestHandler<S3Event, String>{
 		DynamoDB dynamoDB = new DynamoDB(dynamoClient);
 		Table table = dynamoDB.getTable("NOTIFICATIONS");
 		Item item = new Item()
-					.withPrimaryKey("TOKENID", token)
-					.withString("MESSAGE", message)
-					.withBoolean("STATUS", false);
+					.withPrimaryKey("notificationId", getPrimaryKey())
+					.withString("tokenId", token)
+					.withString("message", message);
 		table.putItem(item);
+	}
+	
+	private static long getPrimaryKey() {
+		Date date = new Date();
+		return date.getTime();
 	}
 }
