@@ -1,5 +1,4 @@
 package com.zurich;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,79 +16,16 @@ import com.amazonaws.services.sns.model.GetEndpointAttributesResult;
 import com.amazonaws.services.sns.model.SetEndpointAttributesRequest;
 import com.amazonaws.services.sns.model.SubscribeRequest;
 import com.amazonaws.services.sns.model.SubscribeResult;
-import com.everis.push.services.entities.RegisterEntity;
+import com.zurich.entities.RegisterEntity;
+import com.zurich.entities.RequestClass;
+import com.zurich.entities.ResponseClass;
 
 public class Register {
 	
 	static AmazonSNS client = new AmazonSNSClient();
 	static String topicArn = "arn:aws:sns:us-east-1:688943189407:AMEU8";
-
-	static AmazonDynamoDBClient dynamoClient = new AmazonDynamoDBClient().withRegion(Regions.US_EAST_1);
-
-
-	/*
-	 * Request Class 
-	 */
-	public static class RequestClass {
-		String platform;
-		String token;
-		String identifier;
-		
-		public String getPlatform() {
-			return platform;
-		}
-		
-		public void setPlatform(String platform) {
-			this.platform = platform;
-		}
-		
-		public String getToken() {
-			return token;
-		}
-		
-		public void setToken(String token) {
-			this.token = token;
-		}
-		
-		public String getIdentifier() {
-			return identifier;
-		}
-		
-		public void setIdentifier(String identifier) {
-			this.identifier = identifier;
-		}
-		
-		public RequestClass(String platform, String token, String identifier) {
-			this.platform = platform;
-			this.token = token;
-			this.identifier = identifier;
-		}
-		
-		public RequestClass() {
-		}
-	}
 	
-	/*
-	 * Response Class
-	 */
-	public static class ResponseClass {
-		String subscriptionArn;
-		
-		public String getSubscriptionArn() {
-			return subscriptionArn;
-		}
-		
-		public void setSubcriptionArn(String subscriptionArn) {
-			this.subscriptionArn = subscriptionArn;
-		}
-		
-		public ResponseClass(String subscriptionArn) {
-			this.subscriptionArn = subscriptionArn;
-		}
-		
-		public ResponseClass() {
-		}
-	}
+	static AmazonDynamoDBClient dynamoClient = new AmazonDynamoDBClient().withRegion(Regions.US_EAST_1);
 	
 	/*
 	 * Handler Register
@@ -185,23 +121,5 @@ public class Register {
 		
 		RegisterEntity register = new RegisterEntity(token, platform, identifier);
 		mapper.save(register);
-/*		
-		AmazonDynamoDBClient dynamoClient = new AmazonDynamoDBClient().withRegion(Regions.US_EAST_1);
-		DynamoDB dynamoDB = new DynamoDB(dynamoClient);
-		Table table = dynamoDB.getTable("REGISTER_DEVICES");
-		//DynamoMapper doesn't allow to add empty strings
-		Item item = null;
-		if(identifier.length()>0){
-			item = new Item()
-					.withPrimaryKey("TOKEN_DEVICE", token)
-					.withString("PLATFORM", platform)
-					.withString("USERID", identifier);
-		}else {
-			item = new Item()
-					.withPrimaryKey("TOKEN_DEVICE", token)
-					.withString("PLATFORM", platform);
-		}
-		table.putItem(item);
-*/
 	}
 }
