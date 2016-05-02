@@ -7,6 +7,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.event.S3EventNotification.S3EventNotificationRecord;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import com.zurich.entities.NotificationEntity;
+import com.zurich.entities.NotificationStatusEntity;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,12 +22,8 @@ import java.util.List;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
-import com.everis.push.services.entities.NotificationEntity;
 
 public class Process implements RequestHandler<S3Event, String>{
 
@@ -79,19 +77,15 @@ public class Process implements RequestHandler<S3Event, String>{
 	
 	private static void saveToDynamoDB(String token, String message) {
 		
+		long notificationId = getPrimaryKey();
+		
 		DynamoDBMapper mapper = new DynamoDBMapper(dynamoClient);
-		NotificationEntity notification = new NotificationEntity(getPrimaryKey(), message, true, "");
-		mapper.save(notification);		
-/*		
-		AmazonDynamoDBClient dynamoClient = new AmazonDynamoDBClient().withRegion(Regions.US_EAST_1);
-		DynamoDB dynamoDB = new DynamoDB(dynamoClient);
-		Table table = dynamoDB.getTable("NOTIFICATIONS");
-		Item item = new Item()
-					.withPrimaryKey("notificationId", getPrimaryKey())
-					.withString("tokenId", token)
-					.withString("message", message);
-		table.putItem(item);
-*/
+		
+		NotificationStatusEntity notificationStatus = new NotificationStatusEntity(notificationId, NotificationStatusEntity.RECEIVED);
+		mapper.save(notificationStatus);
+		
+		NotificationEntity notification = new NotificationEntity(notificationId, message, false, token);
+		mapper.save(notification);
 	}
 	
 	private static long getPrimaryKey() {
