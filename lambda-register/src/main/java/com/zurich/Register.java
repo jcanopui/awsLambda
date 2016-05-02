@@ -1,13 +1,12 @@
 package com.zurich;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.apigateway.model.NotFoundException;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
@@ -18,11 +17,15 @@ import com.amazonaws.services.sns.model.GetEndpointAttributesResult;
 import com.amazonaws.services.sns.model.SetEndpointAttributesRequest;
 import com.amazonaws.services.sns.model.SubscribeRequest;
 import com.amazonaws.services.sns.model.SubscribeResult;
+import com.everis.push.services.entities.RegisterEntity;
 
 public class Register {
 	
 	static AmazonSNS client = new AmazonSNSClient();
 	static String topicArn = "arn:aws:sns:us-east-1:688943189407:AMEU8";
+
+	static AmazonDynamoDBClient dynamoClient = new AmazonDynamoDBClient().withRegion(Regions.US_EAST_1);
+
 
 	/*
 	 * Request Class 
@@ -177,6 +180,12 @@ public class Register {
 	}
 	
 	private static void saveToDynamoDB(String token, String platform, String identifier) {
+		
+		DynamoDBMapper mapper = new DynamoDBMapper(dynamoClient);
+		
+		RegisterEntity register = new RegisterEntity(token, platform, identifier);
+		mapper.save(register);
+/*		
 		AmazonDynamoDBClient dynamoClient = new AmazonDynamoDBClient().withRegion(Regions.US_EAST_1);
 		DynamoDB dynamoDB = new DynamoDB(dynamoClient);
 		Table table = dynamoDB.getTable("REGISTER_DEVICES");
@@ -193,5 +202,6 @@ public class Register {
 					.withString("PLATFORM", platform);
 		}
 		table.putItem(item);
+*/
 	}
 }

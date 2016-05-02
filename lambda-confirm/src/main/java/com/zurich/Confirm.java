@@ -2,14 +2,15 @@ package com.zurich;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
-import com.amazonaws.services.dynamodbv2.document.DynamoDB;
-import com.amazonaws.services.dynamodbv2.document.Item;
-import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
-import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.lambda.runtime.Context;
+import com.everis.push.services.entities.NotificationStatusEntity;
 
 public class Confirm {
 
+
+	static AmazonDynamoDBClient dynamoClient = new AmazonDynamoDBClient().withRegion(Regions.US_EAST_1);
+	
 	/*
 	 * Request Class
 	 */
@@ -58,14 +59,20 @@ public class Confirm {
 	 * Handler Register
 	 */
 	public static ResponseClass myHandler(RequestClass request, Context context) {
+		//TODO what is the value that this method must be return?
 		
-		boolean result = saveToDynamoDB(request.getNotificationId());
+		/*boolean result = */saveToDynamoDB(request.getNotificationId());
 		
-		return new ResponseClass(result);
+		return new ResponseClass(true/*result*/);
 	}
 	
-	private static boolean saveToDynamoDB(long notificationId) {
-
+	private static void saveToDynamoDB(long notificationId) {
+		
+		DynamoDBMapper mapper = new DynamoDBMapper(dynamoClient);
+		NotificationStatusEntity notificationStatus = 
+				new NotificationStatusEntity(notificationId, NotificationStatusEntity.ACK);
+		mapper.save(notificationStatus);
+/*		
 		AmazonDynamoDBClient dynamoClient = new AmazonDynamoDBClient().withRegion(Regions.US_EAST_1);
 		DynamoDB dynamoDB = new DynamoDB(dynamoClient);
 		Table table = dynamoDB.getTable("NOTIFICATIONS_STATUS");
@@ -77,5 +84,6 @@ public class Confirm {
 		PutItemOutcome outcome = table.putItem(item);
 		
 		return (outcome!=null);
+*/
 	}
 }
