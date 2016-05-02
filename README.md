@@ -10,3 +10,5 @@ Set of different Amazon Lambda Services to register and publish push messages th
 - lambda_process: lambda service to process csv files containing tokenid and message and store the information on DynamoDB
 
 - lambda_confirm: lambda service to confirm that user has seen the message
+
+- lamba_publish: lamba service to send a notification. This lambda is executed form a DynamoDb stream event.

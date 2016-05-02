@@ -19,14 +19,18 @@ import java.util.List;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
+import com.everis.push.services.entities.NotificationEntity;
 
 public class Process implements RequestHandler<S3Event, String>{
 
+	static 	AmazonDynamoDBClient dynamoClient = new AmazonDynamoDBClient().withRegion(Regions.US_EAST_1);
+	
 	public String handleRequest(S3Event event, Context context) {
 		
 		LambdaLogger logger = context.getLogger();
@@ -74,6 +78,11 @@ public class Process implements RequestHandler<S3Event, String>{
 	}
 	
 	private static void saveToDynamoDB(String token, String message) {
+		
+		DynamoDBMapper mapper = new DynamoDBMapper(dynamoClient);
+		NotificationEntity notification = new NotificationEntity(getPrimaryKey(), message, true, "");
+		mapper.save(notification);		
+/*		
 		AmazonDynamoDBClient dynamoClient = new AmazonDynamoDBClient().withRegion(Regions.US_EAST_1);
 		DynamoDB dynamoDB = new DynamoDB(dynamoClient);
 		Table table = dynamoDB.getTable("NOTIFICATIONS");
@@ -82,6 +91,7 @@ public class Process implements RequestHandler<S3Event, String>{
 					.withString("tokenId", token)
 					.withString("message", message);
 		table.putItem(item);
+*/
 	}
 	
 	private static long getPrimaryKey() {
