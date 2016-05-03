@@ -1,10 +1,10 @@
-/**
- * 
- */
-package com.everis.push.services;
+package com.zurich;
 
 import java.util.Map;
 
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -14,10 +14,10 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
-import com.everis.push.services.entities.NotificationEntity;
-import com.everis.push.services.entities.ResponseClass;
+import com.zurich.entities.NotificationEntity;
+import com.zurich.entities.NotificationStatusEntity;
+import com.zurich.entities.ResponseClass;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class SendNotification.
  *
@@ -27,6 +27,8 @@ public class SendNotification implements RequestHandler<DynamodbEvent, String> {
 
 	/** The client. */
 	static AmazonSNS client = new AmazonSNSClient();
+	
+	static 	AmazonDynamoDBClient dynamoClient = new AmazonDynamoDBClient().withRegion(Regions.US_EAST_1);
 	
 	/** The topic arn. */
 	static String topicArn = "arn:aws:sns:us-east-1:688943189407:AMEU8";
@@ -52,10 +54,12 @@ public class SendNotification implements RequestHandler<DynamodbEvent, String> {
         	} else {
         		response = sendPush(notificationEntity, context);
         	}
+        	
+        	saveNotificationStatus(notificationEntity.getNotificationId());
         }
 		return response.getMessageId();
 	}
-
+	
 	/**
 	 * Send push.
 	 *
@@ -94,5 +98,17 @@ public class SendNotification implements RequestHandler<DynamodbEvent, String> {
 		PublishResult publishResult = client.publish(publishRequest);
 		
 		return new ResponseClass(publishResult.getMessageId());		
+	}
+	
+	/**
+	 * Update status to send to notification with specified notificationId 
+	 * @param notificationId notification identifier
+	 */
+	private void saveNotificationStatus(long notificationId) {
+		
+		DynamoDBMapper mapper = new DynamoDBMapper(dynamoClient);
+		
+		NotificationStatusEntity notificationStatus = new NotificationStatusEntity(notificationId, NotificationStatusEntity.SEND);
+		mapper.save(notificationStatus);
 	}
 }

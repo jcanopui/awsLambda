@@ -1,12 +1,5 @@
-/**
- * 
- */
-package com.everis.push.services.entities;
+package com.zurich.entities;
 
-/**
- * @author jcanopui
- *
- */
 public class ResponseClass {
 	String messageId;
 	

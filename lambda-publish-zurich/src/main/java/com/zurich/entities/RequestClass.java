@@ -1,14 +1,6 @@
-/**
- * 
- */
-package com.everis.push.services.entities;
+package com.zurich.entities;
 
-/**
- * @author jcanopui
- *
- */
 public class RequestClass {
-	
 	private String message;
 	
 	public String getMessage() {

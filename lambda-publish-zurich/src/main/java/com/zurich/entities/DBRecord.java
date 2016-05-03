@@ -1,9 +1,6 @@
-package com.everis.push.services.entities;
+package com.zurich.entities;
 
-
-public class DBRecord {	
-	
-//	@SerializedName("NewImage")
+public class DBRecord {
 	private NotificationEntity notification;
 
 	/**
@@ -18,6 +15,5 @@ public class DBRecord {
 	 */
 	public void setNotification(NotificationEntity notification) {
 		this.notification = notification;
-	}		
-
+	}
 }
