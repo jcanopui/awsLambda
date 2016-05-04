@@ -1,6 +1,5 @@
 package com.zurich.entities;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
@@ -21,9 +20,11 @@ public class NotificationEntity {
 			//TODO this launch an exception
 			notificationId = Long.parseLong(v.getN());
 		} else if ("topic".equals(property)) {
-			topic = v.getBOOL();
-		} else {
+			topic = Boolean.getBoolean(v.getN());
+		} else if ("message".equals(property)){
 			message = v.getS();
+		} else {
+			targetAWS = v.getS();
 		}
 	}
 	
@@ -36,7 +37,6 @@ public class NotificationEntity {
 		this.notificationId = notificationId;
 	}
 
-	@DynamoDBAttribute
 	public String getMessage() {
 		return message;
 	}
@@ -45,7 +45,6 @@ public class NotificationEntity {
 		this.message = message;
 	}
 
-	@DynamoDBAttribute
 	public boolean isTopic() {
 		return topic;
 	}
@@ -57,7 +56,6 @@ public class NotificationEntity {
 		this.topic = topic;
 	}
 
-	@DynamoDBAttribute
 	public String getTargetAWS() {
 		return targetAWS;
 	}

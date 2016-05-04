@@ -46,16 +46,23 @@ public class SendNotification implements RequestHandler<DynamodbEvent, String> {
         	
         	Map<String, AttributeValue> items = record.getDynamodb().getNewImage();
         	
-        	items.forEach( (k,v)->System.out.println("Item : " + k + " Count : " + v) );
-        	items.forEach( (k,v)->notificationEntity.setValue(k, v)); 
+        	if (items!=null) {
         	
-        	if (notificationEntity.isTopic()) {
-        		response = sendTopic(notificationEntity, context);
+        		items.forEach( (k,v)->System.out.println("Item : " + k + " Count : " + v) );
+        		items.forEach( (k,v)->notificationEntity.setValue(k, v)); 
+        	
+        		if (notificationEntity.isTopic()) {
+        			response = sendTopic(notificationEntity, context);
+        		} else {
+        			response = sendPush(notificationEntity, context);
+        		}
+        	
+        		saveNotificationStatus(notificationEntity.getNotificationId());
+        		
         	} else {
-        		response = sendPush(notificationEntity, context);
+        		System.out.println("new image was null");
+        		response = new ResponseClass("KO");
         	}
-        	
-        	saveNotificationStatus(notificationEntity.getNotificationId());
         }
 		return response.getMessageId();
 	}
@@ -69,15 +76,28 @@ public class SendNotification implements RequestHandler<DynamodbEvent, String> {
 	 */
 	public ResponseClass sendPush(NotificationEntity notificationEntity, Context context) {
 		
-		PublishRequest publishRequest = new PublishRequest();
+		ResponseClass response = null;
 		
-		publishRequest.setTargetArn(notificationEntity.getTargetAWS());
+		try{
+			PublishRequest publishRequest = new PublishRequest();
 		
-		publishRequest.setMessage(notificationEntity.getMessage());
+			String targetAWS = notificationEntity.getTargetAWS();
+			String fixedTargetAWS = targetAWS;
+
+			publishRequest.setTargetArn(fixedTargetAWS);
 		
-		PublishResult publishResult = client.publish(publishRequest);
+			publishRequest.setMessage(notificationEntity.getMessage());
 		
-		return new ResponseClass(publishResult.getMessageId());			
+			PublishResult publishResult = client.publish(publishRequest);
+		
+			response = new ResponseClass(publishResult.getMessageId());
+		
+		}catch(Exception e){
+			System.out.println("Exception: "+e.getLocalizedMessage());
+			response = new ResponseClass("KO");
+		}
+		
+		return response;			
 	}
 	
 	/**

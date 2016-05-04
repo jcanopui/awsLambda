@@ -1,18 +1,11 @@
-/**
- * 
- */
-package com.everis.push.services.entities;
+package com.zurich.entities;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
-/**
- * @author jcanopui
- *
- */
-@DynamoDBTable(tableName = "NOTIFICATION_TEST")
+@DynamoDBTable(tableName = "NOTIFICATIONS")
 public class NotificationEntity {
 
 	private long notificationId;
@@ -23,9 +16,7 @@ public class NotificationEntity {
 
 	private String targetAWS;
 	
-	
-	public NotificationEntity(long notificationId, String message,
-			boolean topic, String targetAWS) {
+	public NotificationEntity(long notificationId, String message, boolean topic, String targetAWS) {
 		super();
 		this.notificationId = notificationId;
 		this.message = message;
@@ -62,9 +53,7 @@ public class NotificationEntity {
 		this.message = message;
 	}
 
-	/**
-	 * @return the topic
-	 */
+	@DynamoDBAttribute
 	public boolean isTopic() {
 		return topic;
 	}
@@ -76,9 +65,7 @@ public class NotificationEntity {
 		this.topic = topic;
 	}
 
-	/**
-	 * @return the targetAWS
-	 */
+	@DynamoDBAttribute
 	public String getTargetAWS() {
 		return targetAWS;
 	}
@@ -88,5 +75,5 @@ public class NotificationEntity {
 	 */
 	public void setTargetAWS(String targetAWS) {
 		this.targetAWS = targetAWS;
-	}	
+	}
 }

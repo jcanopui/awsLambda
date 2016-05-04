@@ -75,7 +75,7 @@ public class Process implements RequestHandler<S3Event, String>{
 		return "Ok";
 	}
 	
-	private static void saveToDynamoDB(String token, String message) {
+	private void saveToDynamoDB(String token, String message) {
 		
 		long notificationId = getPrimaryKey();
 		
@@ -88,7 +88,7 @@ public class Process implements RequestHandler<S3Event, String>{
 		mapper.save(notification);
 	}
 	
-	private static long getPrimaryKey() {
+	private long getPrimaryKey() {
 		Date date = new Date();
 		return date.getTime();
 	}
