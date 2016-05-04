@@ -12,3 +12,5 @@ Set of different Amazon Lambda Services to register and publish push messages th
 - lambda_confirm: lambda service to confirm that user has seen the message
 
 - lamba_publish: lamba service to send a notification. This lambda is executed form a DynamoDb stream event.
+
+- lambda_receive: lambda service to receive message and topic or target
