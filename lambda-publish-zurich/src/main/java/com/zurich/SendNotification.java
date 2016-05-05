@@ -1,5 +1,6 @@
 package com.zurich;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.amazonaws.regions.Regions;
@@ -14,6 +15,7 @@ import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSClient;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zurich.entities.NotificationEntity;
 import com.zurich.entities.NotificationStatusEntity;
 import com.zurich.entities.ResponseClass;
@@ -32,6 +34,8 @@ public class SendNotification implements RequestHandler<DynamodbEvent, String> {
 	
 	/** The topic arn. */
 	static String topicArn = "arn:aws:sns:us-east-1:688943189407:AMEU8";
+	
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 	
 	/* (non-Javadoc)
 	 * @see com.amazonaws.services.lambda.runtime.RequestHandler#handleRequest(java.lang.Object, com.amazonaws.services.lambda.runtime.Context)
@@ -85,10 +89,8 @@ public class SendNotification implements RequestHandler<DynamodbEvent, String> {
 			String fixedTargetAWS = targetAWS;
 
 			publishRequest.setTargetArn(fixedTargetAWS);
-		
-			publishRequest.setMessage(notificationEntity.getMessage());
-		
-			PublishResult publishResult = client.publish(publishRequest);
+			
+			PublishResult publishResult = publish(publishRequest, notificationEntity);
 		
 			response = new ResponseClass(publishResult.getMessageId());
 		
@@ -113,9 +115,7 @@ public class SendNotification implements RequestHandler<DynamodbEvent, String> {
 		
 		publishRequest.setTopicArn(topicArn);
 		
-		publishRequest.setMessage(notificationEntity.getMessage());
-		
-		PublishResult publishResult = client.publish(publishRequest);
+		PublishResult publishResult = publish(publishRequest, notificationEntity);
 		
 		return new ResponseClass(publishResult.getMessageId());		
 	}
@@ -130,5 +130,57 @@ public class SendNotification implements RequestHandler<DynamodbEvent, String> {
 		
 		NotificationStatusEntity notificationStatus = new NotificationStatusEntity(notificationId, NotificationStatusEntity.SEND);
 		mapper.save(notificationStatus);
+	}
+	
+	private PublishResult publish(PublishRequest publishRequest, NotificationEntity notificationEntity) {
+		
+		publishRequest.setMessageStructure("json");
+		
+		String androidMessage = getAndroidMessage(notificationEntity);
+		String appleMessage = getAppleMessage(notificationEntity);
+		
+		Map<String, String> messageMap = new HashMap<String, String>();
+		messageMap.put("default", notificationEntity.getMessage());
+		messageMap.put("APNS", appleMessage);
+		messageMap.put("APNS_SANDBOX", appleMessage);
+		messageMap.put("GCM", androidMessage);
+		
+		String message = jsonify(messageMap);
+		
+		// Display the message that will be sent to the endpoint/
+		System.out.println("{Message Body: " + message + "}");
+		
+		publishRequest.setMessage(message);
+		
+		PublishResult result = client.publish(publishRequest);
+		
+		return result;
+	}
+	
+	private String getAppleMessage(NotificationEntity notificationEntity) {
+		Map<String, Object> appleMessageMap = new HashMap<String, Object>();
+		Map<String, Object> appMessageMap = new HashMap<String, Object>();
+		appMessageMap.put("alert", notificationEntity.getMessage());
+		appMessageMap.put("messageId", notificationEntity.getNotificationId());
+		appleMessageMap.put("aps", appMessageMap);
+		return jsonify(appleMessageMap);
+	}
+	
+	private String getAndroidMessage(NotificationEntity notificationEntity) {
+		Map<String, Object> androidMessageMap = new HashMap<String, Object>();
+		Map<String, Object> appMessageMap = new HashMap<String, Object>();
+		appMessageMap.put("message", notificationEntity.getMessage());
+		appMessageMap.put("messageId", notificationEntity.getNotificationId());
+		androidMessageMap.put("data", appMessageMap);
+		return jsonify(androidMessageMap);
+	}
+	
+	public static String jsonify(Object message) {
+		try {
+			return objectMapper.writeValueAsString(message);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw (RuntimeException) e;
+		}
 	}
 }
