@@ -161,7 +161,7 @@ public class SendNotification implements RequestHandler<DynamodbEvent, String> {
 		Map<String, Object> appleMessageMap = new HashMap<String, Object>();
 		Map<String, Object> appMessageMap = new HashMap<String, Object>();
 		appMessageMap.put("alert", notificationEntity.getMessage());
-		appMessageMap.put("messageId", notificationEntity.getNotificationId());
+		appMessageMap.put("notificationId", notificationEntity.getNotificationId());
 		appleMessageMap.put("aps", appMessageMap);
 		return jsonify(appleMessageMap);
 	}
@@ -170,7 +170,7 @@ public class SendNotification implements RequestHandler<DynamodbEvent, String> {
 		Map<String, Object> androidMessageMap = new HashMap<String, Object>();
 		Map<String, Object> appMessageMap = new HashMap<String, Object>();
 		appMessageMap.put("message", notificationEntity.getMessage());
-		appMessageMap.put("messageId", notificationEntity.getNotificationId());
+		appMessageMap.put("notificationId", notificationEntity.getNotificationId());
 		androidMessageMap.put("data", appMessageMap);
 		return jsonify(androidMessageMap);
 	}
