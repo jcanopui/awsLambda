@@ -1,6 +1,7 @@
 package com.zurich.entities;
 
 public class RequestClass {
+	
 	private String message;
 	
 	public String getMessage() {

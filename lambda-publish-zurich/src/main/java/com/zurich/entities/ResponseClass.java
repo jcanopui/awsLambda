@@ -1,6 +1,7 @@
 package com.zurich.entities;
 
 public class ResponseClass {
+	
 	String messageId;
 	
 	public String getMessageId() {
