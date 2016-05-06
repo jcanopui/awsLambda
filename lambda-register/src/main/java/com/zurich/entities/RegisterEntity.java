@@ -7,7 +7,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 public class RegisterEntity {
 
 	private String token;
+	
 	private String platform;
+	
 	private String identifier;
 
 	public RegisterEntity(String token, String platform, String identifier) {

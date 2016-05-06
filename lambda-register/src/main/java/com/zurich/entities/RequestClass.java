@@ -3,7 +3,9 @@ package com.zurich.entities;
 public class RequestClass {
 
 	String platform;
+	
 	String token;
+	
 	String identifier;
 	
 	public String getPlatform() {
