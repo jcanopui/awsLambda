@@ -68,7 +68,7 @@ public class Receive {
 		NotificationStatusEntity notificationStatus = new NotificationStatusEntity(notificationId, NotificationStatusEntity.RECEIVED);
 		mapper.save(notificationStatus);
 
-		NotificationEntity notification = new NotificationEntity(getPrimaryKey(), message, isTopic, token);
+		NotificationEntity notification = new NotificationEntity(notificationId, message, isTopic, token);
 		mapper.save(notification);
 	}
 	

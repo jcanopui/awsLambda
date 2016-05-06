@@ -1,6 +1,7 @@
 package com.zurich.entities;
 
 public class RequestClass {
+	
 	String message;
 	
 	String topicName;
