@@ -46,7 +46,8 @@ public class Register {
 		
 			GetEndpointAttributesResult geaRes = client.getEndpointAttributes(geaReq);
 		
-			updateNeeded = !geaRes.getAttributes().get("Token").equals(token) || !geaRes.getAttributes().get("Enabled").equalsIgnoreCase("true");
+			updateNeeded = !geaRes.getAttributes().get("Token").equals(token) || 
+						   !geaRes.getAttributes().get("Enabled").equalsIgnoreCase("true");
 		}catch(NotFoundException nfe){
 			createNeeded = true;
 		}
@@ -63,7 +64,7 @@ public class Register {
 		String subscriptionArn = subscribeToTopic(endpointArn);
 		
 		//Save to database
-		saveToDynamoDB(token, request.getPlatform(), request.getIdentifier());
+		saveToDynamoDB(token, request.getPlatform(), request.getIdentifier(),endpointArn);
 		
 		return new ResponseClass(subscriptionArn);
 	}
@@ -115,11 +116,12 @@ public class Register {
 		return subscribeRes.getSubscriptionArn();
 	}
 	
-	private static void saveToDynamoDB(String token, String platform, String identifier) {
+	private static void saveToDynamoDB( String token, String platform, String identifier, String endpointArn) {
 		
 		DynamoDBMapper mapper = new DynamoDBMapper(dynamoClient);
+
+		RegisterEntity register = new RegisterEntity(token, platform, identifier, endpointArn);
 		
-		RegisterEntity register = new RegisterEntity(token, platform, identifier);
 		mapper.save(register);
 	}
 }

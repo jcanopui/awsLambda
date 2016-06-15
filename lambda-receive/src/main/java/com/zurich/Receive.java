@@ -27,8 +27,8 @@ public class Receive {
 			String message = request.getMessage();
 			
 			String topicName = request.getTopicName();
-			
-			boolean isTopic = request.isTopic();
+			//TODO
+			boolean isTopic = true;//request.isTopic();
 			
 			String token = getToken(topicName);
 			
@@ -65,7 +65,9 @@ public class Receive {
 		
 		DynamoDBMapper mapper = new DynamoDBMapper(dynamoClient);
 		
-		NotificationStatusEntity notificationStatus = new NotificationStatusEntity(notificationId, NotificationStatusEntity.RECEIVED);
+		NotificationStatusEntity notificationStatus = 
+				new NotificationStatusEntity(notificationId, NotificationStatusEntity.RECEIVED);
+		notificationStatus.setReceiveDate(new Date());
 		mapper.save(notificationStatus);
 
 		NotificationEntity notification = new NotificationEntity(notificationId, message, isTopic, token);

@@ -56,8 +56,18 @@ public class Process implements RequestHandler<S3Event, String>{
 	        List<String> messages = new ArrayList<String>();
 	        while((line = br.readLine()) !=null){
 	        	String[] info = line.split(",");
-	        	tokens.add(info[0]);
-	        	messages.add(info[1]);
+	        	if (info.length > 1) {
+		        	tokens.add(info[0]);
+	        		messages.add(info[1]);
+	        		StringBuilder buff = new StringBuilder("Process: [OK CSV format: ");
+	        		buff.append(line).append("]");
+	        		System.out.println(buff.toString());	        		
+	        	} else {
+	        		StringBuilder buff = new StringBuilder("Process: [Incorrect CSV format: ");
+	        		buff.append(line).append("]");
+	        		System.out.println(buff.toString());
+	        	}
+	        	
 	        }
 	        
 	        //Store in DynamoDB
@@ -82,6 +92,7 @@ public class Process implements RequestHandler<S3Event, String>{
 		DynamoDBMapper mapper = new DynamoDBMapper(dynamoClient);
 		
 		NotificationStatusEntity notificationStatus = new NotificationStatusEntity(notificationId, NotificationStatusEntity.RECEIVED);
+		notificationStatus.setReceiveDate(new Date());
 		mapper.save(notificationStatus);
 		
 		NotificationEntity notification = new NotificationEntity(notificationId, message, false, token);

@@ -4,7 +4,15 @@
   <artifactId>lambda-register-zurich</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>lambda-register-zurich</name>
+  
   <dependencies>
+  	
+  	<dependency>
+  		<groupId>com.zurich</groupId>
+  		<artifactId>lambda-push-model</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  	
   	<dependency>
   		<groupId>com.amazonaws</groupId>
   		<artifactId>aws-lambda-java-core</artifactId>
